@@ -1,0 +1,15 @@
+{
+  "name": "opencv-mediapipe-demo",
+  "version": "1.0.0",
+  "description": "Demo Open CV",
+  "scripts": {
+    "start": "serve .",
+    "build": "echo 'No build step required for static project'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}

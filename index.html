@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Open CV</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Demo Open CV</h1>
+        </header>
+
+        <main class="main-layout">
+            <!-- Left Side: Camera Status -->
+            <section class="video-section">
+                <div class="video-container" id="cameraView">
+                    <!-- Layer 1: Animated Background (GIF/Video/Image) -->
+                    <div id="bgMediaLayer" class="bg-media-layer">
+                        <img id="bgImageElement" src="" alt="Background" class="hidden" decoding="async" crossorigin="anonymous">
+                        <video id="bgVideoElement" loop muted playsinline class="hidden"></video>
+                    </div>
+
+                    <!-- Layer 2: Camera Feed / Segmented Subject -->
+                    <canvas id="canvasOutput" class="hidden"></canvas>
+                    
+                    <!-- Layer 3: Placeholder (Only when off) -->
+                    <div id="cameraPlaceholder" class="camera-placeholder">
+                        <i class="fas fa-video-slash fa-4x"></i>
+                        <p id="placeholderText">Cámara Desactivada</p>
+                    </div>
+                    
+                    <video id="videoInput" autoplay muted playsinline class="hidden-preview"></video>
+                    
+                    <!-- Layer 4: Controls Bar -->
+                    <div class="camera-controls-bar">
+                        <button id="toggleCamera" class="camera-btn" title="Activar/Desactivar Cámara">
+                            <i class="fas fa-video-slash"></i>
+                        </button>
+                        <button id="switchCamera" class="camera-btn" title="Cambiar Cámara" disabled>
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+
+                    <div id="status" class="status-overlay hidden">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    </div>
+
+                    <div id="metrics-overlay" class="metrics-overlay">
+                        <span id="fps-counter">FPS: 0</span> | <span id="latency-val">0</span>ms
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side: Control Panel -->
+            <aside class="control-panel">
+                <section>
+                    <h3 class="section-title"><i class="fas fa-cog"></i> Configuración Cámara</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-arrows-alt-h"></i>
+                            <span>Modo Espejo</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="mirrorMode">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="section-title"><i class="fas fa-magic"></i> Modo de Filtro</h3>
+                    <div class="filter-selector">
+                        <div class="filter-card" data-filter="nv_bg_blur"><i class="fas fa-eye-slash"></i><span>Blur</span></div>
+                        <div class="filter-card active" data-filter="nv_bg_replace"><i class="fas fa-image"></i><span>Fondo</span></div>
+                        <div class="filter-card" data-filter="none"><i class="fas fa-ban"></i><span>Sin Filtro</span></div>
+                    </div>
+                </section>
+
+                <section id="gallerySection">
+                    <h3 class="section-title"><i class="fas fa-photo-video"></i> Gestión de Medios</h3>
+                    <div class="bg-gallery" id="bgGallery"></div>
+                    <label for="bgUpload" class="upload-box">
+                        <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                        <div class="upload-text">
+                            <p>Subir Imagen o Video</p>
+                            <span>MP4, GIF, PNG, JPG (Máx 20MB)</span>
+                        </div>
+                    </label>
+                    <input type="file" id="bgUpload" accept="image/*,video/*">
+                </section>
+
+                <section id="mediaControlsSection" class="hidden">
+                    <h3 class="section-title"><i class="fas fa-play-circle"></i> Controles Multimedia</h3>
+                    <div class="media-controls-container">
+                        <div class="media-controls-grid">
+                            <button id="bgPlayPause" class="media-btn" title="Play/Pause"><i class="fas fa-pause"></i></button>
+                            <div class="slider-container">
+                                <div class="slider-header"><span>Velocidad</span><span id="speedVal">1.0x</span></div>
+                                <input type="range" id="bgSpeed" min="0.5" max="2.0" step="0.1" value="1.0">
+                            </div>
+                        </div>
+                        <div class="video-progress-container">
+                            <div class="time-display">
+                                <span id="currentTime">00:00</span> / <span id="durationTime">00:00</span>
+                            </div>
+                            <input type="range" id="bgProgress" class="progress-bar" min="0" max="100" value="0" step="0.1">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="adjustment-group" id="adjustmentsSection">
+                    <h3 class="section-title"><i class="fas fa-sliders-h"></i> Ajustes de Capas</h3>
+                    <div class="slider-container" id="blurSliderContainer">
+                        <div class="slider-header"><span>Intensidad Blur</span><span id="blurVal">15px</span></div>
+                        <input type="range" id="blurStrength" min="0" max="50" value="15">
+                    </div>
+                    <div class="slider-container" id="opacitySliderContainer">
+                        <div class="slider-header"><span>Opacidad Fondo</span><span id="opacityVal">100%</span></div>
+                        <input type="range" id="bgOpacity" min="0" max="100" value="100">
+                    </div>
+                    <div class="slider-container" id="posSliderContainer">
+                        <div class="slider-header"><span>Posición Vertical</span><span id="posVal">0px</span></div>
+                        <input type="range" id="bgOffsetY" min="-100" max="100" value="0">
+                    </div>
+                    <div class="slider-container" id="posXSliderContainer">
+                        <div class="slider-header"><span>Posición Horizontal</span><span id="posXVal">0px</span></div>
+                        <input type="range" id="bgOffsetX" min="-500" max="500" value="0">
+                    </div>
+                </section>
+            </aside>
+        </main>
+
+        <div id="errorToast" class="error-toast hidden"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script async src="https://docs.opencv.org/4.x/opencv.js" onload="onOpenCvReady();"></script>
+    <script src="app.js"></script>
+</body>
+</html>

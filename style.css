@@ -1,0 +1,365 @@
+:root {
+    --primary-color: #0078d4;
+    --bg-color: #f3f2f1;
+    --card-bg: #ffffff;
+    --text-color: #323130;
+    --success-color: #107c10;
+    --error-color: #a4262c;
+    --border-radius: 12px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    padding: 20px;
+}
+
+.container { max-width: 1200px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 2rem; }
+header h1 { font-size: 2.5rem; color: var(--primary-color); letter-spacing: -0.5px; }
+
+.main-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 24px;
+    align-items: start;
+}
+
+.video-section, .control-panel {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #1e1e1e;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Layer 1: Background Media */
+.bg-media-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.bg-media-layer img, .bg-media-layer video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+/* Layer 2: Segmented Subject */
+#canvasOutput {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    object-fit: contain;
+}
+
+/* Layer 3: Placeholder & Overlays */
+.camera-placeholder {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: #1e1e1e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    color: #605e5c;
+    text-align: center;
+}
+
+.camera-placeholder i { opacity: 0.3; }
+.camera-placeholder p { font-weight: 600; font-size: 1.1rem; }
+
+/* Layer 4: Controls */
+.camera-controls-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 40px;
+}
+
+.camera-btn, .media-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.camera-btn.active { background: var(--success-color); color: white; }
+
+.control-panel { display: flex; flex-direction: column; gap: 20px; }
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Settings Items */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.setting-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Toggle Switch Styling */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider.round {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* Mirror Transformation */
+.mirrored {
+    transform: scaleX(-1);
+}
+
+#canvasOutput.mirrored {
+    transform: scaleX(-1);
+}
+
+.filter-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.filter-card {
+    background: #f8f9fa;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 12px 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.filter-card.active { border-color: var(--primary-color); background: #eef6ff; }
+
+.bg-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+.bg-item {
+    aspect-ratio: 16/9;
+    background-size: cover;
+    background-position: center;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.bg-item.video::after {
+    content: '\f03d';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: white;
+    font-size: 0.7rem;
+    text-shadow: 0 0 3px black;
+}
+
+.bg-item.selected { border-color: var(--primary-color); }
+
+.upload-box {
+    border: 2px dashed #ccd0d5;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 15px;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background-color 0.2s;
+}
+
+.upload-box:hover { background-color: #f0f2f5; }
+.upload-box .upload-text p { font-weight: 600; }
+.upload-box .upload-text span { font-size: 0.75rem; color: #605e5c; }
+#bgUpload { display: none; }
+
+.media-controls-container {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.media-controls-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 15px;
+    align-items: center;
+}
+
+.video-progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.time-display {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-family: monospace;
+}
+
+.progress-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: #dee2e6;
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+.progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.status-overlay, .metrics-overlay, .error-toast {
+    position: absolute;
+    z-index: 100;
+}
+
+.status-overlay { inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; color: white; }
+.metrics-overlay { top: 12px; right: 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; }
+.error-toast { bottom: 20px; right: 20px; background: var(--error-color); color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+.hidden, .hidden-preview { display: none !important; }
+input[type="range"] { width: 100%; accent-color: var(--primary-color); }
+.slider-header { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; }
+
+/* --- Responsive Breakpoints --- */
+@media (max-width: 1000px) { .main-layout { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { body { padding: 15px; } header h1 { font-size: 2rem; } }
+@media (max-width: 480px) {
+    body { padding: 10px; }
+    .video-section, .control-panel { padding: 15px; }
+    .media-controls-grid { grid-template-columns: 1fr; gap: 15px; }
+    .bg-gallery { grid-template-columns: repeat(2, 1fr); }
+    .camera-controls-bar { padding: 8px 15px; gap: 10px; }
+    .camera-btn, .media-btn { width: 40px; height: 40px; font-size: 1rem; }
+}
